@@ -9,10 +9,10 @@ import {
   DatePicker as MUIDatePicker,
 } from "@mui/x-date-pickers";
 import { AdapterMomentJalaali } from "@mui/x-date-pickers/AdapterMomentJalaali";
-import * as XLSX from "xlsx";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import { iranHolidays1404, iranHolidays1405 } from "@/lib/constants";
+import { exportToExcel } from "@/lib/utils";
 
 interface TimesheetRow {
   date: string;
@@ -94,9 +94,9 @@ export default function Home() {
   const [entryTime, setEntryTime] = useState<string>("10:00");
   const [exitTime, setExitTime] = useState<string>("19:00");
   const [vacationDays, setVacationDays] = useState<string[]>([]);
-  const [manualVacationTimes, setManualVacationTimes] = useState<
-    Record<string, { entry: string; exit: string }>
-  >({});
+  // const [manualVacationTimes, setManualVacationTimes] = useState<
+  //   Record<string, { entry: string; exit: string }>
+  // >({});
   const [holidays, setHolidays] = useState<string[]>([]);
   const [data, setData] = useState<TimesheetRow[]>([]);
 
@@ -137,9 +137,9 @@ export default function Home() {
       }
 
       if (vacationDays.includes(date)) {
-        const manual = manualVacationTimes[date];
-        const entry = manual?.entry || entryTime;
-        const exit = manual?.exit || exitTime;
+        // const manual = manualVacationTimes[date];
+        // const entry = manual?.entry || entryTime;
+        // const exit = manual?.exit || exitTime;
         return {
           //   date,
           //   weekday,
@@ -194,12 +194,12 @@ export default function Home() {
     setData(result);
   };
 
-  const generateExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Timesheet");
-    XLSX.writeFile(wb, "timesheet.xlsx");
-  };
+  // const generateExcel = () => {
+  //   const ws = XLSX.utils.json_to_sheet(data);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "Timesheet");
+  //   XLSX.writeFile(wb, "timesheet.xlsx");
+  // };
 
   const handleVacationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const lines = e.target.value
@@ -222,10 +222,18 @@ export default function Home() {
     .toString()
     .padStart(2, "0")}`;
   const totalVacation = data.filter((row) => row.isVacation).length * 9;
+  function formatDecimalHoursToHHMM(hoursDecimal: number): string {
+    const totalMinutes = Math.round(hoursDecimal * 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours.toString().padStart(1, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
+  }
 
   return (
-    <main className="p-8 max-w-6xl mx-auto font-vazir">
-      <h1 className="text-2xl font-bold mb-4">تولید فیش حضور و غیاب</h1>
+    <main className="p-8 max-w-6xl mx-auto font-mono flex flex-col items-center">
+      <h1 className="text-2xl font-bold mb-4 ">تولید فیش حضور و غیاب</h1>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div>
           <label className="block mb-1">ماه شمسی</label>
@@ -274,19 +282,22 @@ export default function Home() {
           />
         </div>
       </div>
-      <button
-        onClick={handleGenerate}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        تولید جدول
-      </button>
+      <div>
+        <button
+          onClick={handleGenerate}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          تولید جدول
+        </button>
 
-      <button
-        onClick={generateExcel}
-        className="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-4"
-      >
-        دریافت خروجی اکسل
-      </button>
+        <button
+          onClick={() => exportToExcel(data)}
+          // onClick={() => generateExcel()}
+          className="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-4"
+        >
+          دریافت خروجی اکسل
+        </button>
+      </div>
       <div className="mt-8 overflow-x-auto" dir="rtl">
         <table className="w-full text-right border text-sm">
           <thead>
@@ -308,7 +319,9 @@ export default function Home() {
               <tr key={i} className={row.isVacation ? "bg-yellow-50" : ""}>
                 <td className="border px-2">{i + 1}</td>
                 <td className="border px-2">{row.weekday}</td>
-                <td className="border px-2 whitespace-nowrap">{moment(row.date, 'jYYYY/jMM/jDD').format('MM/DD')}</td>
+                <td className="border px-2 whitespace-nowrap">
+                  {moment(row.date, "jYYYY/jMM/jDD").format("MM/DD")}
+                </td>
                 <td className="border px-2">{row.entryDate}</td>
                 <td className="border px-2">{row.entry}</td>
                 <td className="border px-2">{row.exitDate}</td>
@@ -324,9 +337,13 @@ export default function Home() {
               <td className="border px-2" colSpan={7}>
                 مجموع
               </td>
-              <td className="border px-2">{totalNormal.toFixed(2)}h</td>
+              <td className="border px-2">
+                {formatDecimalHoursToHHMM(totalNormal)}
+              </td>
               <td className="border px-2">{totalOvertime}</td>
-              <td className="border px-2">{totalVacation}</td>
+              <td className="border px-2">
+                {formatDecimalHoursToHHMM(totalVacation)}
+              </td>
             </tr>
           </tbody>
         </table>
