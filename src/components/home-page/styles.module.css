@@ -1,0 +1,36 @@
+.month_picker {
+  /* background-color: red !important; */
+  color: white !important;
+  border-radius: 8px;
+  border: 2px solid rgb(58, 147, 230) !important;
+}
+
+.month_picker * {
+  color: white !important;
+  font-family: inherit !important;
+  height: 40px;
+}
+
+.month_picker label {
+  display: none;
+}
+
+.table {
+  width: 100%;
+  font-family: inherit !important;
+  border-radius: 32px;
+  overflow: hidden;
+}
+.table th {
+  border: none;
+  padding: 16px;
+}
+.table:last-child {
+  border: none;
+  padding: 16px;
+}
+.table td {
+  border: none;
+  border: 1px solid #43464c;
+  padding: 10px;
+}

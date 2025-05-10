@@ -13,7 +13,7 @@ import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import { iranHolidays1404, iranHolidays1405 } from "@/lib/constants";
 import { exportToExcel } from "@/lib/utils";
-
+import styles from "./styles.module.css";
 interface TimesheetRow {
   date: string;
   weekday: string;
@@ -99,7 +99,6 @@ export default function Home() {
   // >({});
   const [holidays, setHolidays] = useState<string[]>([]);
   const [data, setData] = useState<TimesheetRow[]>([]);
-  console.log("sa");
 
   useEffect(() => {
     const loadHolidays = async () => {
@@ -121,12 +120,16 @@ export default function Home() {
         "jMM/jDD"
       );
       const formattedExitDate = formattedEntryDate;
-      console.log(" formattedEntryDate ", moment(date, "jYYYY/jMM/jDD"));
 
       if (isWeekend || isHoliday) {
         return {
           date,
-          weekday,
+          weekday:
+            weekday === "جمعه" || isHoliday
+              ? `${weekday} تعطیل رسمی`
+              : weekday === "پنج‌شنبه"
+              ? "پنجشنبه تعطیل توافقی"
+              : weekday,
           entry: "0:00",
           exit: "0:00",
           normalHours: 0,
@@ -233,11 +236,11 @@ export default function Home() {
   }
 
   return (
-    <main className="p-8 max-w-6xl mx-auto font-mono flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-4 ">تولید فیش حضور و غیاب</h1>
+    <main className="p-8 max-w-6xl mx-auto  flex flex-col items-center">
+      <h1 className="text-2xl font-bold mb-4 mt-16 ">فیش حضور و غیاب</h1>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div>
-          <label className="block mb-1">ماه شمسی</label>
+        <div dir="rtl" className="mr-6">
+          <label className="block mb-1">ماه</label>
           <LocalizationProvider
             dateAdapter={AdapterMomentJalaali}
             adapterLocale="fa"
@@ -250,35 +253,42 @@ export default function Home() {
               }}
               label="انتخاب ماه"
               slotProps={{ textField: { size: "small", fullWidth: true } }}
+              className={styles.month_picker}
             />
           </LocalizationProvider>
         </div>
         <div>
-          <label className="block mb-1">ساعت ورود</label>
+          <label dir="rtl" className="block mb-1">
+            ساعت ورود
+          </label>
           <TimePicker
             onChange={(value) => setEntryTime(value as string)}
             value={entryTime}
             disableClock
             format="HH:mm"
-            className="w-full"
+            className="w-full border-2 border-solid border-blue-500 h-[40px] rounded-[8px] flex flex-row-reverse"
           />
         </div>
         <div>
-          <label className="block mb-1">ساعت خروج</label>
+          <label dir="rtl" className="block mb-1">
+            ساعت خروج
+          </label>
           <TimePicker
             onChange={(value) => setExitTime(value as string)}
             value={exitTime}
             disableClock
             format="HH:mm"
-            className="w-full"
+            className="w-full border-2 border-solid border-blue-500 h-[40px] rounded-[8px] flex flex-row-reverse "
           />
         </div>
         <div>
-          <label className="block mb-1">روزهای مرخصی (هر خط یک تاریخ)</label>
+          <label dir="rtl" className="block mb-1">
+            روزهای مرخصی (هر خط یک تاریخ)
+          </label>
           <textarea
             onChange={handleVacationChange}
             rows={4}
-            className="w-full border rounded p-2 text-sm"
+            className="w-full   p-2 text-lg text-right border-2 border-solid border-blue-500 rounded-[8px] focus:outline-0"
             placeholder="مثال: 1403/02/10"
           />
         </div>
@@ -300,9 +310,9 @@ export default function Home() {
         </button>
       </div>
       <div className="mt-8 overflow-x-auto" dir="rtl">
-        <table className="w-full text-right border text-sm">
+        <table className={`w-full text-right border-b border-gray-50 text-sm ${styles.table}`}>
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-[#07B8C9]">
               <th className="border px-2">ردیف</th>
               <th className="border px-2">روز هفته</th>
               <th className="border px-2">تاریخ </th>
@@ -317,7 +327,7 @@ export default function Home() {
           </thead>
           <tbody>
             {data.map((row, i) => (
-              <tr key={i} className={row.isVacation ? "bg-yellow-50" : ""}>
+              <tr key={i} className={row.isVacation ? "bg-[#CC7C00]" : ""}>
                 <td className="border px-2">{i + 1}</td>
                 <td className="border px-2">{row.weekday}</td>
                 <td className="border px-2 whitespace-nowrap">
@@ -331,10 +341,10 @@ export default function Home() {
                   {row.normalHours ? `${row.normalHours}:00` : ""}
                 </td>
                 <td className="border px-2">{row.overtime}</td>
-                <td className="border px-2">{row.isVacation ? "✅" : ""}</td>
+                <td className="border px-2">{row.isVacation ? "9:00" : ""}</td>
               </tr>
             ))}
-            <tr className="font-bold bg-gray-100">
+            <tr className="font-bold bg-[#bb3036] p-4">
               <td className="border px-2" colSpan={7}>
                 مجموع
               </td>
