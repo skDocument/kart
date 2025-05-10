@@ -99,6 +99,7 @@ export default function Home() {
   // >({});
   const [holidays, setHolidays] = useState<string[]>([]);
   const [data, setData] = useState<TimesheetRow[]>([]);
+  console.log("sa");
 
   useEffect(() => {
     const loadHolidays = async () => {
