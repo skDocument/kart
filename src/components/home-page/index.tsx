@@ -49,8 +49,10 @@ function generateRandomTimes(entry: string, exit: string) {
 
 function generateWorkDays(month: Moment): string[] {
   const daysInMonth = getDaysInJalaliMonth(month.jYear(), month.jMonth() + 1); // +1 because month is 0-indexed in moment
-  const days: string[] = [];
 
+  const days: string[] = [];
+  console.log('daysInMonth ',daysInMonth);
+  
   for (let day = 1; day <= daysInMonth; day++) {
     const date = moment(
       `${month.jYear()}/${month.jMonth() + 1}/${day}`,
@@ -66,17 +68,8 @@ function getDaysInJalaliMonth(year: number, month: number): number {
   // These are the days in each month in the Jalali calendar
   const daysInMonths = [
     31,
-    year % 4 === 3 && month === 12 ? 30 : 31,
-    31,
-    30,
-    31,
-    30,
-    31,
-    31,
-    30,
-    31,
-    30,
-    29,
+    // year % 4 === 3 && month === 12 ? 30 : 31,
+    31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29,
   ];
   return daysInMonths[month - 1];
 }
@@ -310,7 +303,9 @@ export default function Home() {
         </button>
       </div>
       <div className="mt-8 overflow-x-auto" dir="rtl">
-        <table className={`w-full text-right border-b border-gray-50 text-sm ${styles.table}`}>
+        <table
+          className={`w-full text-right border-b border-gray-50 text-sm ${styles.table}`}
+        >
           <thead>
             <tr className="bg-[#07B8C9]">
               <th className="border px-2">ردیف</th>
